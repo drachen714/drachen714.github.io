@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="redis," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="redis数据类型分为：字符串类型、散列类型、列表类型、集合类型、有序集合类型。redis这么火，它运行有多块？一台普通的笔记本电脑，可以在1秒钟内完成十万次的读写操作。原子操作：最小的操作单位，不能继续拆分。即最小的执行单位，不会被其他命令插入。高并发下不存在竞态条件。KEY的命名：一个良好的建议是article:1:title来存储ID为1的文章的标题。 一、前言。123456781、获取ke">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis数据类型">
+<meta property="og:url" content="http://drachen714.github.io/2017/11/15/redis/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="redis数据类型分为：字符串类型、散列类型、列表类型、集合类型、有序集合类型。redis这么火，它运行有多块？一台普通的笔记本电脑，可以在1秒钟内完成十万次的读写操作。原子操作：最小的操作单位，不能继续拆分。即最小的执行单位，不会被其他命令插入。高并发下不存在竞态条件。KEY的命名：一个良好的建议是article:1:title来存储ID为1的文章的标题。 一、前言。123456781、获取ke">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-16T03:39:58.871Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis数据类型">
+<meta name="twitter:description" content="redis数据类型分为：字符串类型、散列类型、列表类型、集合类型、有序集合类型。redis这么火，它运行有多块？一台普通的笔记本电脑，可以在1秒钟内完成十万次的读写操作。原子操作：最小的操作单位，不能继续拆分。即最小的执行单位，不会被其他命令插入。高并发下不存在竞态条件。KEY的命名：一个良好的建议是article:1:title来存储ID为1的文章的标题。 一、前言。123456781、获取ke">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://drachen714.github.io/2017/11/15/redis/"/>
+
+
+
+
+
+  <title>Redis数据类型 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-schedule">
+          <a href="/schedule/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br />
+            
+            日程表
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://drachen714.github.io/2017/11/15/redis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="drachen714">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis数据类型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-15T10:39:33+08:00">
+                2017-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DB/" itemprop="url" rel="index">
+                    <span itemprop="name">DB</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>redis数据类型分为：字符串类型、散列类型、列表类型、集合类型、有序集合类型。<br>redis这么火，它运行有多块？一台普通的笔记本电脑，可以在1秒钟内完成十万次的读写操作。<br>原子操作：最小的操作单位，不能继续拆分。即最小的执行单位，不会被其他命令插入。高并发下不存在竞态条件。<br>KEY的命名：一个良好的建议是article:1:title来存储ID为1的文章的标题。</p>
+<h3 id="一、前言。"><a href="#一、前言。" class="headerlink" title="一、前言。"></a>一、前言。</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>、获取key的列表：<span class="type">KEYS</span> pattern 通配符有？*[]和转义\</span><br><span class="line"><span class="number">2</span>、key是否存在： <span class="type">EXISTS</span> key 存在返回<span class="number">1</span>，不存在返回<span class="number">0</span>.</span><br><span class="line"><span class="number">3</span>、建立key和删除key：<span class="type">SET</span> key 和 <span class="type">DEL</span> key</span><br><span class="line"><span class="number">4</span>、根据key获取该键所存储的redis数据类型：<span class="type">TYPE</span> key。返回是string、list、hash、<span class="keyword">set</span>、zset。下面会对这<span class="number">5</span>种返回的redis数据类型逐一讲解。</span><br><span class="line"><span class="number">5</span>、rename oldkey newkey：对key重命名，如果newkey存在则覆盖。</span><br><span class="line"><span class="number">6</span>、renamenx oldkey newkey：对key重命名，如果newkey存在则不覆盖。</span><br><span class="line"><span class="number">7</span>、randomkey：随即返回一个key</span><br><span class="line"><span class="number">8</span>、move key db-index：将key移动到指定的数据库中，如果key不存在或者已经在该数据库中，则返回<span class="number">0</span>。成功则返回<span class="number">1</span>.</span><br></pre></td></tr></table></figure>
+<h3 id="二、Redis数据类型-Redis数据命令"><a href="#二、Redis数据类型-Redis数据命令" class="headerlink" title="二、Redis数据类型 Redis数据命令"></a>二、Redis数据类型 Redis数据命令</h3><ol>
+<li><p>Redis数据类型一字符串类型：  </p>
+<ul>
+<li>这个很好理解，一个key存储一个字符串。如果你要存数据呢？转换成Json或者其他的字符串序列化。</li>
+</ul>
+</li>
+<li><p>Redis数据命令一字符串类型：</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）赋值：<span class="type">SET</span> key value。如<span class="keyword">set</span> hello world</span><br><span class="line"><span class="number">2</span>）取值：<span class="type">GET</span> key。如<span class="keyword">get</span> hello。返回是world</span><br><span class="line"><span class="number">3</span>）自增：<span class="type">INCR</span> key。就是<span class="type">Mysql</span>的<span class="type">AUTO_INCREMENT</span>。每次执行<span class="type">INCR</span> key时，该key的值都会+<span class="number">1</span>.若key不存在，则先建立一个<span class="number">0</span>，然后+<span class="number">1</span>，返回<span class="number">1</span>。如果值不是整数则报错。该操作是原子操作。</span><br><span class="line"><span class="number">4</span>）自减：<span class="type">DECR</span> key。将指定key的值减少<span class="number">1</span>.如<span class="type">DECR</span> num，就是num-<span class="number">1</span></span><br><span class="line"><span class="number">5</span>）自增<span class="type">N</span>：<span class="type">INCRBY</span> key increment用来给指定key的值加increment。如<span class="type">INCRBY</span> num <span class="number">5</span>就是num+<span class="number">5</span></span><br><span class="line"><span class="number">6</span>）自减<span class="type">N</span>：<span class="type">DECRBY</span> key increment用来给指定key的值减increment。如<span class="type">DECRBY</span> num <span class="number">5</span>就是num-<span class="number">5</span></span><br><span class="line"><span class="number">7</span>）增加浮点数：<span class="type">INCRBYFLOAT</span> key increment。</span><br><span class="line"><span class="number">8</span>）向尾部追加：<span class="type">APPEND</span> key value。如<span class="keyword">set</span> test:key <span class="number">123</span>     append test:key <span class="number">456</span>      <span class="keyword">get</span> test:key就是<span class="number">123456</span></span><br><span class="line"><span class="number">9</span>）获取长度：<span class="type">STRLEN</span> key。</span><br><span class="line"><span class="number">10</span>）同时给多个key 赋值：<span class="type">MSET</span> title 这是标题 description 这是描述 content 这是内容。</span><br><span class="line"><span class="number">11</span>）同时获取多个key的值：<span class="type">MGET</span> title description content</span><br><span class="line"><span class="number">12</span>）位操作之获取：<span class="type">GETBIT</span> key offset。如字符a在redis中的存储为<span class="number">01100001</span>（<span class="type">ASCII</span>为<span class="number">98</span>），那么<span class="type">GETBIT</span> key <span class="number">2</span>就是<span class="number">1</span>，<span class="type">GET</span> key <span class="number">0</span>就是<span class="number">0</span>。</span><br><span class="line"><span class="number">13</span>）位操作之设置：<span class="type">SETBIT</span> key offset value。如字符a在redis中的存储为<span class="number">01100001</span>（<span class="type">ASCII</span>为<span class="number">98</span>），那么<span class="type">SETBIT</span> key <span class="number">6</span> <span class="number">0</span>，<span class="type">SETBIT</span> key <span class="number">5</span> <span class="number">1</span>那么<span class="keyword">get</span> key得到的是b。因为取出的二进制为<span class="number">01100010</span>。</span><br><span class="line"><span class="number">14</span>）位操作之统计：<span class="type">BITCOUNT</span> key [start] [end]：<span class="type">BITCOUNT</span> key用来获取key的值中二进制是<span class="number">1</span>的个数。而<span class="type">BITCOUNT</span> key start end则是用来统计key的值中在第start和end之间的子字符串的二进制是<span class="number">1</span>的个数（好绕啊）。</span><br><span class="line"><span class="number">15</span>）位操作之位运算：<span class="type">BITOP</span> operation resultKey key1 key2。operation是位运算的操作，有<span class="type">AND</span>，<span class="type">OR</span>，<span class="type">XOR</span>，<span class="type">NOT</span>。resultKey是把运算结构存储在这个key中，key1和key2是参与运算的key，参与运算的key可以指定多个。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Redis数据类型二散列类型：</p>
+<ul>
+<li>Redis是以字典（关联数组）的形式存储的，一个key对应一个value。在字符串类型中，value只能是一个字符串。那么在散列类型，也叫哈希类型中，value对应的也是一个字典（关联数组）。那么就可以理解，Redis的哈希类型/散列类型中，key对应的value是一个二维数组。但是字段的值只可以是字符串。也就是说只能是二维数组，不能有更多的维度。</li>
+</ul>
+</li>
+<li><p>Redis数据命令二散列类型：</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）赋值：<span class="type">HSET</span> key field value。如hset user name lane。hset user age <span class="number">23</span></span><br><span class="line"><span class="number">2</span>）取值：<span class="type">HGET</span> key field。如hget user name，得到的是lane。</span><br><span class="line"><span class="number">3</span>）同一个key多个字段赋值：<span class="type">HMSET</span> key field1 value1 field2 value2...</span><br><span class="line"><span class="number">4</span>）同一个<span class="type">KEY</span>多个字段取值：<span class="type">HMGET</span> key field1 fields2...</span><br><span class="line"><span class="number">5</span>）获取<span class="type">KEY</span>的所有字段和所有值：<span class="type">HGETALL</span> key。如<span class="type">HGETALL</span> user得到的是name lane age <span class="number">23</span>。每个返回都是独立的一行。</span><br><span class="line"><span class="number">6</span>）字段是否存在：<span class="type">HEXISTS</span> key field。存在返回<span class="number">1</span>，不存在返回<span class="number">0</span></span><br><span class="line"><span class="number">7</span>）当字段不存在时赋值：<span class="type">HSETNX</span> key field value。如果key下面的字段field不存在，则建立field字段，且值为value。如果field字段存在，则不执行任何操作。它的效果等于<span class="type">HEXISTS</span> + <span class="type">HSET</span>。但是这个命令的优点是原子操作。再高的并发也不会怕怕。</span><br><span class="line"><span class="number">8</span>）自增<span class="type">N</span>：<span class="type">HINCREBY</span> key field increment。同字符串的自增类型，不再阐述。</span><br><span class="line"><span class="number">9</span>）删除字段：<span class="type">DEL</span> key field1 field2...删除指定<span class="type">KEY</span>的一个或多个字段。</span><br><span class="line"><span class="number">10</span>）只获取字段名：<span class="type">HKEYS</span> key。与<span class="type">HGETALL</span>类似，但是只获取字段名，不获取字段值。</span><br><span class="line"><span class="number">11</span>）只获取字段值：<span class="type">HVALS</span> key。与<span class="type">HGETALL</span>类似，但是只获取字段值，不获取字段名。</span><br><span class="line"><span class="number">12</span>）获取字段数量：<span class="type">HLEN</span> key。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Redis数据类型三列表类型：</p>
+<ul>
+<li>列表类型存储了一个有序的字符串列表。常用的操作是向两端插入新的元素。时间复杂度为O（1）。结构为一个链表。记录头和尾的地址。看到这里，Redis数据类型的列表类型一个重大的作用呼之欲出，那就是队列。新来的请求插入到尾部，新处理过的从头部删除。另外，比如微博的新鲜事。比如日志。列表类型就是一个下标从0开始的数组。由于是链表存储，那么越靠近头和尾的元素操作越快，越靠近中间则越慢。</li>
+</ul>
+</li>
+<li><p>Redis数据命令三列表类型：</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）向头部插入：<span class="type">LPUSH</span> key value1 value2...。返回增加后的列表长度。</span><br><span class="line"><span class="number">2</span>）向尾部插入：<span class="type">RPUSH</span> key value1 value2...。返回增加后的列表长度。</span><br><span class="line"><span class="number">3</span>）从头部弹出：<span class="type">LPOP</span> key。返回被弹出的元素值。该操作先删除key列表的第一个元素，再将它返回。</span><br><span class="line"><span class="number">4</span>）从尾部弹出：<span class="type">RPOP</span> key。返回被弹出的元素值。</span><br><span class="line"><span class="number">5</span>）列表元素个数：<span class="type">LLEN</span> key。key不存在返回<span class="number">0</span>。</span><br><span class="line"><span class="number">6</span>）获取列表的子列表：<span class="type">LRANGE</span> start end。返回第start个到第end个元素的列表。包含start和end。支持负数索引。-<span class="number">1</span>表示最后一个元素，-<span class="number">2</span>表示倒数第二个元素。</span><br><span class="line"><span class="number">7</span>）删除列表中指定值：<span class="type">LREM</span> key <span class="built_in">count</span> value。删除key这个列表中，所有值为value的元素，只删除<span class="built_in">count</span>。如果有<span class="built_in">count</span>+<span class="number">1</span>个，那么就保留最后一个。<span class="built_in">count</span>不存在或者为<span class="number">0</span>，则删除所有的。如果<span class="built_in">count</span>大于<span class="number">0</span>，则删除从头到尾的<span class="built_in">count</span>个，如果<span class="built_in">count</span>小于<span class="number">0</span>，则删除从尾到头的<span class="built_in">count</span>个。</span><br><span class="line"><span class="number">8</span>）获取指定索引值：<span class="type">LINDEX</span> key index。如<span class="type">LINDEX</span> key <span class="number">0</span>就是列表的第一个元素。index可以是负数。</span><br><span class="line"><span class="number">9</span>）设置索引和值：<span class="type">LSET</span> key index value。这个操作只是修改指定key且指定index的值。如果index不存在，则报错。</span><br><span class="line"><span class="number">10</span>）保留片段，删除其它：<span class="type">LTRIM</span> key start end。保留start到end之间的所有元素，含start和end。其他全部删除。</span><br><span class="line"><span class="number">11</span>）向列表插入元素：<span class="type">LINSERT</span> key <span class="type">BEFORE</span>/<span class="type">AFTER</span> value1 value2。从列表头开始遍历，发现值为value1时停止，将value2插入，根据<span class="type">BEFORE</span>或者<span class="type">AFTER</span>插入到value1的前面还是后面。</span><br><span class="line"><span class="number">12</span>）把一个列表的一个元素转到另一个列表：<span class="type">RPOPLPUSH</span> list1 list2。将列表list1的右边元素删除，并把该与元素插入到列表list2的左边。原子操作。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Redis数据类型四集合类型：</p>
+<ul>
+<li>集合类型是为了方便对多个集合进行操作和运算。集合中每个元素不同且没有顺序的概念，每个元素都是且只能是一个字符串。常用操作是对集合插入、删除、判断等操作。时间复杂度尾O(1)。可以进行交集、并集、差集运算。例如文章1的有3个标签，是一个Redis数据类型集合类型存储。文章2有3个标签，有一个Redis数据类型集合类型存储。文章是1是mysql，文章2是讲redis。那么交集是不是就交出了一个数据库？（假设数据库这个tag在两篇文字都有）。集合类型在redis中的存储是一个值为空的散列表。</li>
+</ul>
+</li>
+<li><p>Redis数据命令四集合类型：</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）增加：<span class="type">SADD</span> key value。</span><br><span class="line"><span class="number">2</span>）删除：<span class="type">SREM</span> key value。</span><br><span class="line"><span class="number">3</span>）获取指定集合的所有元素：<span class="type">SMEMBERS</span> key。</span><br><span class="line"><span class="number">4</span>）判断某个元素是否存在：<span class="type">SISMEMBER</span> key value。</span><br><span class="line"><span class="number">5</span>）差集运算：<span class="type">SDIFF</span> key1 key2...。对多个集合进行差集运算。</span><br><span class="line"><span class="number">6</span>）交集运算：<span class="type">SINNER</span> key1 key2...。对多个集合进行交集运算。</span><br><span class="line"><span class="number">7</span>）并集运算：<span class="type">SUNION</span> key1 key2...。对多个集合进行并集运算。</span><br><span class="line"><span class="number">8</span>）获取集合中元素个数：<span class="type">SCARD</span> key。返回集合中元素的总个数。</span><br><span class="line"><span class="number">9</span>）对差集、交集、并集运算的结果存放在一个指定的key中：<span class="type">SDIFFSTORE</span> storekey key1 key2。对key1和key2求差集，结果存放在key为storekey的集合中。<span class="type">SINNERSTORE</span>和<span class="type">SUNIONSTORE</span>类似。</span><br><span class="line"><span class="number">10</span>）获取集合中的随即元素：<span class="type">SRANDMEMBER</span> key [<span class="built_in">count</span>]。参数<span class="built_in">count</span>可选，如果<span class="built_in">count</span>不存在，则随即一个。<span class="built_in">count</span>大于<span class="number">0</span>，则是不重复的<span class="built_in">count</span>个元素。<span class="built_in">count</span>小于<span class="number">0</span>，则是一共|<span class="built_in">count</span>|个元素，可以重复。</span><br><span class="line"><span class="number">11</span>）随即弹出一个元素：<span class="type">SPOP</span> key。随即从集合中弹出一个元素并删除，将该元素的值返回。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Redis数据类型五有序集合类型：</p>
+<ul>
+<li>集合类型是无序的，每个元素是唯一的。那么有序集合就是有序的，每个元素是唯一的。有序集合类型和集合类型的差别是，有序集合为每个元素配备了一个属性：分数。有序集合就是根据分数来排序的。有序集合是使用散列表和跳跃表实现的。所以和列表相比，操作中间元素的速度也很快。时间复杂度尾O(log(N))。Redis数据类型中的有序集合类型比Redis数据类型中的列表类型更加耗费资源。</li>
+</ul>
+</li>
+<li><p>Redis数据命令五有序集合类型：</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）增加：<span class="type">ZADD</span> key sorce1 value1 sorce2 value2...。</span><br><span class="line"><span class="number">2</span>）获取分数：<span class="type">ZSCORE</span> key value。获取key的有序集合中值为value的元素的分数。</span><br><span class="line"><span class="number">3</span>）获取排名在某个范围内的元素列表：<span class="type">ZRANFGE</span> key start stop [<span class="type">WITHSCORE</span>]。获取排名在start和end之间的元素列表，包含start和end2个元素。每个元素一行。如果有<span class="type">WITHSCORE</span>参数，则一行元素值，一行分数。时间复杂度为<span class="type">O</span>(<span class="type">LOGn</span>+m)。如果分数相同，则<span class="number">0</span>&lt;<span class="number">0</span>&lt;<span class="type">A</span>&lt;<span class="type">Z</span>&lt;a&lt;z。</span><br><span class="line"><span class="number">4</span>）获取指定分数范围的元素：<span class="type">ZRANGEBYSCORE</span> key <span class="built_in">min</span> <span class="built_in">max</span> [<span class="type">WITHSCORE</span>] [<span class="type">LIMIT</span> offset <span class="built_in">count</span>]。获取分数在<span class="built_in">min</span>和<span class="built_in">max</span>之间的元素列表。含两头。每个元素一行。如果有<span class="type">WITHSCORE</span>参数，则一行元素值，一行分数。如果<span class="built_in">min</span>大于<span class="built_in">max</span>则顺序反转。</span><br><span class="line"><span class="number">5</span>）为某个元素增加分数：<span class="type">ZINCRBY</span> key increment value。指定的有序集合的值为value的元素的分数+increment。返回值后更改后的分数。</span><br><span class="line"><span class="number">6</span>）获取集合中元素的数量：<span class="type">ZCARD</span> key。</span><br><span class="line"><span class="number">7</span>）获取指定分数范围内的元素个数：<span class="type">ZCOUNT</span> key <span class="built_in">min</span> <span class="built_in">max</span>。</span><br><span class="line"><span class="number">8</span>）删除一个或多个元素：<span class="type">ZREM</span> key value1 value2...</span><br><span class="line"><span class="number">9</span>）根据排名范围删除元素：<span class="type">ZREMRANGEBYRANK</span> key start end。删除排名在start和end中的元素。</span><br><span class="line"><span class="number">10</span>）按照分数范围删除元素：<span class="type">ZREMRANGEBYSCORE</span> key <span class="built_in">min</span> <span class="built_in">max</span>。</span><br><span class="line"><span class="number">11</span>）获得元素排名（正序）：<span class="type">ZRANK</span> key value。获取value在该集合中的从小到大的排名。</span><br><span class="line"><span class="number">12</span>）获得元素排名（倒序）：<span class="type">ZREVRANK</span> key value。获取value在该集合中从大到小的排名。</span><br><span class="line"><span class="number">13</span>）有序集合的交集：<span class="type">ZINTERSTORE</span> storekey key1 key2...[<span class="type">WEIGHTS</span> weight [weight..]] [<span class="type">AGGREGATE</span> <span class="type">SUM</span>|<span class="type">MIN</span>|<span class="type">MAX</span>]。用来计算多个集合的交集，结果存储在storekey中。返回值是storekey的元素个数。<span class="type">AGGREGATE</span>为<span class="type">SUM</span>则storekey集合的每个元素的分数是参与计算的集合分数和。<span class="type">MIN</span>是参与计算的分数最小值。<span class="type">MAX</span>是参与计算分数最大值。<span class="type">WEIGHTS</span> 设置每个集合的权重，如<span class="type">WEIGHTS</span> <span class="number">1</span> <span class="number">0.1</span>。那么集合<span class="type">A</span>的每个元素分数*<span class="number">1</span>，集合<span class="type">B</span>的每个元素分数*<span class="number">0.1</span></span><br><span class="line"><span class="number">14</span>）有序集合的并集：<span class="type">ZUNIONSTORE</span> storekey key1 kye2...[<span class="type">WEIGHTS</span> weight [weight..]] [<span class="type">AGGREGATE</span> <span class="type">SUM</span>|<span class="type">MIN</span>|<span class="type">MAX</span>]</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/14/centreon/" rel="next" title="Centreon服务搭建">
+                <i class="fa fa-chevron-left"></i> Centreon服务搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/15/tidb/" rel="prev" title="Tidb">
+                Tidb <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="drachen714" />
+            
+              <p class="site-author-name" itemprop="name">drachen714</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、前言。"><span class="nav-number">1.</span> <span class="nav-text">一、前言。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Redis数据类型-Redis数据命令"><span class="nav-number">2.</span> <span class="nav-text">二、Redis数据类型 Redis数据命令</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">drachen714</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

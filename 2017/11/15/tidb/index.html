@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="docker,tidb," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="TiDB 总览TiDB 是一个可以无限水平扩展和高可用的 NewSQL 数据库，本文档用于帮助技术人员（特别是运维人员）理解 TiDB 的整体架构，水平扩展和高可用特性。 TiDB 架构要深入了解 TiDB 的水平扩展和高可用特点，首先需要了解 TiDB 的整体架构。 TiDB 集群主要分为三个组件：  TiDB ServerTiDB Server 负责接收 SQL 请求，处理 SQL 相关的逻辑">
+<meta name="keywords" content="docker,tidb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tidb">
+<meta property="og:url" content="http://drachen714.github.io/2017/11/15/tidb/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="TiDB 总览TiDB 是一个可以无限水平扩展和高可用的 NewSQL 数据库，本文档用于帮助技术人员（特别是运维人员）理解 TiDB 的整体架构，水平扩展和高可用特性。 TiDB 架构要深入了解 TiDB 的水平扩展和高可用特点，首先需要了解 TiDB 的整体架构。 TiDB 集群主要分为三个组件：  TiDB ServerTiDB Server 负责接收 SQL 请求，处理 SQL 相关的逻辑">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/tidb/tidb_architecture.png">
+<meta property="og:updated_time" content="2017-11-16T03:38:47.124Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Tidb">
+<meta name="twitter:description" content="TiDB 总览TiDB 是一个可以无限水平扩展和高可用的 NewSQL 数据库，本文档用于帮助技术人员（特别是运维人员）理解 TiDB 的整体架构，水平扩展和高可用特性。 TiDB 架构要深入了解 TiDB 的水平扩展和高可用特点，首先需要了解 TiDB 的整体架构。 TiDB 集群主要分为三个组件：  TiDB ServerTiDB Server 负责接收 SQL 请求，处理 SQL 相关的逻辑">
+<meta name="twitter:image" content="http://drachen714.github.io/2017/11/15/tidb/tidb_architecture.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://drachen714.github.io/2017/11/15/tidb/"/>
+
+
+
+
+
+  <title>Tidb | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-schedule">
+          <a href="/schedule/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br />
+            
+            日程表
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://drachen714.github.io/2017/11/15/tidb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="drachen714">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Tidb</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-16T02:43:24+08:00">
+                2017-11-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DB/" itemprop="url" rel="index">
+                    <span itemprop="name">DB</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="TiDB-总览"><a href="#TiDB-总览" class="headerlink" title="TiDB 总览"></a>TiDB 总览</h3><p>TiDB 是一个可以无限水平扩展和高可用的 NewSQL 数据库，本文档用于帮助技术人员（特别是运维人员）理解 TiDB 的整体架构，水平扩展和高可用特性。</p>
+<h3 id="TiDB-架构"><a href="#TiDB-架构" class="headerlink" title="TiDB 架构"></a>TiDB 架构</h3><p>要深入了解 TiDB 的水平扩展和高可用特点，首先需要了解 TiDB 的整体架构。<br><img src="tidb_architecture.png" alt="architecture"></p>
+<p>TiDB 集群主要分为三个组件：</p>
+<ul>
+<li><p>TiDB Server<br>TiDB Server 负责接收 SQL 请求，处理 SQL 相关的逻辑，并通过 PD 找到存储计算所需数据的 TiKV 地址，与 TiKV 交互获取数据，最终返回结果。<br>TiDB Server 是无状态的，其本身并不存储数据，只负责计算，可以无限水平扩展，可以通过负载均衡组件（如LVS、HAProxy 或 F5）对外提供统一的接入地址。</p>
+</li>
+<li><p>PD Server<br>Placement Driver (简称 PD) 是整个集群的管理模块，其主要工作有三个： 一是存储集群的原信息（某个 Key 存储在哪个 TiKV 节点）；二是对 TiKV 集群进行调度和负载均衡（如数据的迁移、Raft group leader 的迁移等）；三是分配全局唯一且递增的事务 ID<br>PD 是一个集群，需要部署奇数个节点，一般线上推荐至少部署 3 个节点。</p>
+</li>
+<li><p>TiKV Server<br>TiKV Server 负责存储数据，从外部看 TiKV 是一个分布式的提供事务的 Key-Value 存储引擎。存储数据的基本单位是 Region，每个 Region 负责存储一个 Key Range （从 StartKey 到 EndKey 的左闭右开区间）的数据，每个 TiKV 节点会负责多个 Region 。TiKV 使用 Raft 协议做复制，保持数据的一致性和容灾。副本以 Region 位单位进行管理，不同节点上的多个 Region 构成一个 Raft Group，互为副本。<br>数据在多个 TiKV 之间的负载均衡由 PD 调度，这里也是以 Region 为单位进行调度。</p>
+</li>
+</ul>
+<h4 id="水平扩展"><a href="#水平扩展" class="headerlink" title="水平扩展"></a>水平扩展</h4><ul>
+<li>无限水平扩展是 TiDB 的一大特点，这里说的水平扩展包括两方面：计算能力和存储能力。</li>
+<li>TiDB Server 负责处理 SQL 请求，随着业务的增长，可以简单的添加 TiDB Server 节点，提高整体的处理能力，提供更高的吞吐。</li>
+<li>TiKV 负责存储数据，随着数据量的增长，可以部署更多的 TiKV Server 节点解决数据 Scale 的问题。PD 会在 TiKV 节点之间以 Region 为单位做调度，将部分数据迁移到新加的节点上。</li>
+<li>所以在业务的早期，可以只部署少量的服务实例（推荐至少部署 3 个 TiKV， 3 个 PD，2 个 TiDB），随着业务量的增长，按照需求添加 TiKV 或者 TiDB 实例。</li>
+</ul>
+<h4 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h4><p>高可用是 TiDB 的另一大特点，TiDB/TiKV/PD 这三个组件都能容忍部分实例失效，不影响整个集群的可用性。下面分别说明这三个组件的可用性、单个实例失效后的后果以及如何恢复。</p>
+<ul>
+<li><p><strong>TiDB</strong><br>TiDB 是无状态的，推荐至少部署两个实例，前端通过负载均衡组件对外提供服务。当单个实例失效时，会影响正在这个实例上进行的 Session，从应用的角度看，会出现单次请求失败的情况，重新连接后即可继续获得服务。单个实例失效后，可以重启这个实例或者部署一个新的实例。</p>
+</li>
+<li><p><strong>PD</strong><br>PD 是一个集群，通过 Raft 协议保持数据的一致性，单个实例失效时，如果这个实例不是 Raft 的 leader，那么服务完全不受影响；如果这个实例是 Raft 的 leader，会重新选出新的 Raft leader，自动恢复服务。PD 在选举的过程中无法对外提供服务，这个时间大约是3秒钟。推荐至少部署三个 PD 实例，单个实例失效后，重启这个实例或者添加新的实例。</p>
+</li>
+<li><p><strong>TiKV</strong><br>TiKV 是一个集群，通过 Raft 协议保持数据的一致性（副本数量可配置，默认保存三副本），并通过 PD 做负载均衡调度。单个节点失效时，会影响这个节点上存储的所有 Region。对于 Region 中的 Leader 结点，会中断服务，等待重新选举；对于 Region 中的 Follower 节点，不会影响服务。当某个 TiKV 节点失效，并且在一段时间内（默认 10 分钟）无法恢复，PD 会将其上的数据迁移到其他的 TiKV 节点上。</p>
+</li>
+</ul>
+<h3 id="TiDB-Docker-部署准备"><a href="#TiDB-Docker-部署准备" class="headerlink" title="TiDB Docker 部署准备"></a>TiDB Docker 部署准备</h3><h4 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h4><ul>
+<li>安装 Docker<br>使用 Docker 可以非常快速搭建一套 TiDB 环境。<br>Docker 可以方便地在 Linux / Mac OS X / Windows 平台安装，安装过程可参考 <a href="https://www.docker.com/products/docker" target="_blank" rel="external">Docker 官网</a></li>
+</ul>
+<h4 id="获取镜像"><a href="#获取镜像" class="headerlink" title="获取镜像"></a>获取镜像</h4><p>一个 TiDB 集群包含三种类型的服务组件，TiDB, TiKV 和 PD。</p>
+<ul>
+<li>tidb-server 是 TiDB 的执行进程，负责客户端的接入，对用户的 SQL 进行解析、优化和执行，并转化为下层的 KV 操作，将执行结果进行聚合返回给客户端。TiDB 对外兼容 MySQL 协议，可以直接使用 MySQL Client 进行测试。</li>
+<li>tikv-server，作为 TiDB 的分布式 KV 存储引擎，可以在网络互通的多机环境部署，使用 Raft 协议实现强一致性的数据复制，当多数派节点存活时 TiKV 保持可用状态。</li>
+<li>pd-server，负责 TiKV 的 Region 路由信息的维护和存储，并协调处理数据的 rebalance 以及 merge 和 split 等操作。一个集群可部署多个 PD 实例。</li>
+</ul>
+<p>获取 TiDB, TiKV, PD 的 Docker 镜像可以直接拉 Docker Hub 发布的 latest 镜像。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull pingcap/tidb</span><br><span class="line">docker pull pingcap/tikv</span><br><span class="line">docker pull pingcap/pd</span><br></pre></td></tr></table></figure>
+<h4 id="多节点信息"><a href="#多节点信息" class="headerlink" title="多节点信息"></a>多节点信息</h4><p>假设我们有三台机器:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Host IP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>host1</strong></td>
+<td>192.168.1.100</td>
+</tr>
+<tr>
+<td><strong>host2</strong></td>
+<td>192.168.1.101</td>
+</tr>
+<tr>
+<td><strong>host3</strong></td>
+<td>192.168.1.102</td>
+</tr>
+</tbody>
+</table>
+<h3 id="TiDB-Docker-部署"><a href="#TiDB-Docker-部署" class="headerlink" title="TiDB Docker 部署"></a>TiDB Docker 部署</h3><h4 id="每台机器上启动-PD"><a href="#每台机器上启动-PD" class="headerlink" title="每台机器上启动 PD"></a>每台机器上启动 PD</h4><ul>
+<li><p>pd1  </p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name pd1 \</span><br><span class="line">    --net=host \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /data/pingcap/pd/etc/pd.toml:/etc/pd.toml \</span><br><span class="line">    -v /srv/tikv/etcd:/var/lib/etcd \</span><br><span class="line">    -v /data/pingcap/pd/<span class="built_in">log</span>:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/pd \</span><br><span class="line">    --client-urls=http://0.0.0.0:2379 \</span><br><span class="line">    --advertise-client-urls=http://192.168.1.100:2379 \</span><br><span class="line">    --peer-urls=http://0.0.0.0:2380 \</span><br><span class="line">    --advertise-peer-urls=http://192.168.1.100:2380 \</span><br><span class="line">    --initial-cluster=<span class="string">"pd1=http://192.168.1.100:2380,pd2=http://192.168.1.101:2380,pd3=http://192.168.1.102:2380"</span> \</span><br><span class="line">    --data-dir=/var/lib/etcd \</span><br><span class="line">    --name=pd1 \</span><br><span class="line">    --config=/etc/pd.toml \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/pd.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>pd2</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name pd2 \</span><br><span class="line">    --net=host \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /data/pingcap/pd/etc/pd.toml:/etc/pd.toml \</span><br><span class="line">    -v /srv/tikv/etcd:/var/lib/etcd \</span><br><span class="line">    -v /data/pingcap/pd/<span class="built_in">log</span>:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/pd \</span><br><span class="line">    --client-urls=http://0.0.0.0:2379 \</span><br><span class="line">    --advertise-client-urls=http://192.168.1.101:2379 \</span><br><span class="line">    --peer-urls=http://0.0.0.0:2380 \</span><br><span class="line">    --advertise-peer-urls=http://192.168.1.101:2380 \</span><br><span class="line">    --initial-cluster=<span class="string">"pd1=http://192.168.1.100:2380,pd2=http://192.168.1.101:2380,pd3=http://192.168.1.102:2380"</span> \</span><br><span class="line">    --data-dir=/var/lib/etcd \</span><br><span class="line">    --name=pd2 \</span><br><span class="line">    --config=/etc/pd.toml \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/pd.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>pd3</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name pd3 \</span><br><span class="line">    --net=host \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /data/pingcap/pd/etc/pd.toml:/etc/pd.toml \</span><br><span class="line">    -v /srv/tikv/etcd:/var/lib/etcd \</span><br><span class="line">    -v /data/pingcap/pd/<span class="built_in">log</span>:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/pd \</span><br><span class="line">    --client-urls=http://0.0.0.0:2379 \</span><br><span class="line">    --advertise-client-urls=http://192.168.1.102:2379 \</span><br><span class="line">    --peer-urls=http://0.0.0.0:2380 \</span><br><span class="line">    --advertise-peer-urls=http://192.168.1.102:2380 \</span><br><span class="line">    --initial-cluster=<span class="string">"pd1=http://192.168.1.100:2380,pd2=http://192.168.1.101:2380,pd3=http://192.168.1.102:2380"</span> \</span><br><span class="line">    --data-dir=/var/lib/etcd \</span><br><span class="line">    --name=pd3 \</span><br><span class="line">    --config=/etc/pd.toml \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/pd.log</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="每台机器上启动-TiKV"><a href="#每台机器上启动-TiKV" class="headerlink" title="每台机器上启动 TiKV"></a>每台机器上启动 TiKV</h4><ul>
+<li><p>tikv1</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name=tikv1 \</span><br><span class="line">    -p 20160:20160 \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /srv/tikv/data/20160:/var/lib/tikv \</span><br><span class="line">    -v /data/pingcap/tikv/etc/tikv.toml:/etc/tikv.toml:ro \</span><br><span class="line">    -v /data/pingcap/tikv/<span class="built_in">log</span>/20160:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/tikv \</span><br><span class="line">    --dsn=raftkv \</span><br><span class="line">    --pd=192.168.1.100:2379,192.168.1.101:2379,192.168.1.102:2379 \</span><br><span class="line">    --addr=0.0.0.0:20160 \</span><br><span class="line">    --advertise-addr=192.168.1.100:20160 \</span><br><span class="line">    --store=/var/lib/tikv \</span><br><span class="line">    --config=/etc/tikv.toml \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/tikv.log \</span><br><span class="line">    --capacity 500gb</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>tikv2</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name=tikv2 \</span><br><span class="line">    -p 20160:20160 \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /srv/tikv/data/20160:/var/lib/tikv \</span><br><span class="line">    -v /data/pingcap/tikv/etc/tikv.toml:/etc/tikv.toml:ro \</span><br><span class="line">    -v /data/pingcap/tikv/<span class="built_in">log</span>/20160:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/tikv \</span><br><span class="line">    --dsn=raftkv \</span><br><span class="line">    --pd=192.168.1.100:2379,192.168.1.101:2379,192.168.1.102:2379 \</span><br><span class="line">    --addr=0.0.0.0:20160 \</span><br><span class="line">    --advertise-addr=192.168.1.101:20160 \</span><br><span class="line">    --store=/var/lib/tikv \</span><br><span class="line">    --config=/etc/tikv.toml \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/tikv.log \</span><br><span class="line">    --capacity 500gb</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>tikv3</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name=tikv3 \</span><br><span class="line">    -p 20160:20160 \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /srv/tikv/data/20160:/var/lib/tikv \</span><br><span class="line">    -v /data/pingcap/tikv/etc/tikv.toml:/etc/tikv.toml:ro \</span><br><span class="line">    -v /data/pingcap/tikv/<span class="built_in">log</span>/20160:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/tikv \</span><br><span class="line">    --dsn=raftkv \</span><br><span class="line">    --pd=192.168.1.100:2379,192.168.1.101:2379,192.168.1.102:2379 \</span><br><span class="line">    --addr=0.0.0.0:20160 \</span><br><span class="line">    --advertise-addr=192.168.1.102:20160 \</span><br><span class="line">    --store=/var/lib/tikv \</span><br><span class="line">    --config=/etc/tikv.toml \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/tikv.log \</span><br><span class="line">    --capacity 500gb</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="在每台机器上启动-TiDB"><a href="#在每台机器上启动-TiDB" class="headerlink" title="在每台机器上启动 TiDB"></a>在每台机器上启动 TiDB</h4><ul>
+<li><p>tidb1</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name=tidb1 \</span><br><span class="line">    -p 4000:4000 -p 10080:10080 \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /data/pingcap/tidb/<span class="built_in">log</span>:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/tidb \</span><br><span class="line">    --store=tikv \</span><br><span class="line">    --path=<span class="string">"192.168.1.100:2379,192.168.1.101:2379,192.168.1.102:2379?cluster=1"</span> \</span><br><span class="line">    --lease 10 \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/tidb.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>tidb2</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name=tidb2 \</span><br><span class="line">    -p 4000:4000 -p 10080:10080 \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /data/pingcap/tidb/<span class="built_in">log</span>:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/tidb \</span><br><span class="line">    --store=tikv \</span><br><span class="line">    --path=<span class="string">"192.168.1.100:2379,192.168.1.101:2379,192.168.1.102:2379?cluster=1"</span> \</span><br><span class="line">    --lease 10 \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/tidb.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>tidb3</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d --restart=always --name=tidb3 \</span><br><span class="line">    -p 4000:4000 -p 10080:10080 \</span><br><span class="line">    -v /etc/localtime:/etc/localtime:ro \</span><br><span class="line">    -v /data/pingcap/tidb/<span class="built_in">log</span>:/var/<span class="built_in">log</span> \</span><br><span class="line">    pingcap/tidb \</span><br><span class="line">    --store=tikv \</span><br><span class="line">    --path=<span class="string">"192.168.1.100:2379,192.168.1.101:2379,192.168.1.102:2379?cluster=1"</span> \</span><br><span class="line">    --lease 10 \</span><br><span class="line">    --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/tidb.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在 <strong>host1</strong> 上使用 MySQL 客户端连接 TiDB 进行测试  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -h <span class="variable">$&#123;host1&#125;</span> -P 4000 -u root -D <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h3><h4 id="更新代码、镜像"><a href="#更新代码、镜像" class="headerlink" title="更新代码、镜像"></a>更新代码、镜像</h4><ul>
+<li><p>pd  </p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/build/pingcap/pd</span><br><span class="line">$ git pull</span><br><span class="line">$ docker build --force-rm -t registry-ro.xindong.com/pd:a481d30 -f Dockerfile.self .</span><br><span class="line">$ docker push registry-ro.xindong.com/pd:a481d30</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Tikv  </p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/build/pingcap/tikv</span><br><span class="line">$ docker pull</span><br><span class="line">$ docker build --force-rm -t registry-ro.xindong.com/tikv:ea38cbe -f Dockerfile.self .</span><br><span class="line">$ docker push registry-ro.xindong.com/tikv:ea38cbe</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Tidb  </p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/build/pingcap/tidb</span><br><span class="line">$ git pull</span><br><span class="line">$ docker build --force-rm -t registry-ro.xindong.com/tidb:88a66a5 -f Dockerfile.self .</span><br><span class="line">$ docker push registry-ro.xindong.com/tidb:88a66a5</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h4><ul>
+<li><p>pd  </p>
+  <figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> alpine:latest</span><br><span class="line"><span class="keyword">ENV</span> GOROOT=/usr/lib/go GOPATH=/go</span><br><span class="line"><span class="keyword">ENV</span> PATH=$GOROOT/bin:$GOPATH/bin:$PATH</span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . /go/src/github.com/pingcap/pd</span></span><br><span class="line"><span class="bash">RUN sed -i -e s<span class="string">'/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/'</span> /etc/apk/repositories &amp;&amp; \</span></span><br><span class="line"><span class="bash">    apk update &amp;&amp; \</span></span><br><span class="line"><span class="bash">    apk add go make git &amp;&amp; \</span></span><br><span class="line"><span class="bash">    rm -rf /var/cache/apk/* &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /go/bin &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /go/src/github.com/pingcap/pd/ &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make &amp;&amp; \</span></span><br><span class="line"><span class="bash">    cp -f ./bin/pd-server /go/bin/pd-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> / &amp;&amp; \</span></span><br><span class="line"><span class="bash">    rm -rf /go/src &amp;&amp; \</span></span><br><span class="line"><span class="bash">    apk del go make git &amp;&amp; \</span></span><br><span class="line"><span class="bash">    addgroup -g 232 etcd &amp;&amp; \</span></span><br><span class="line"><span class="bash">    adduser -h /dev/null -D -s /sbin/nologin -H -G etcd -u 232 etcd</span></span><br><span class="line"><span class="bash">USER etcd</span></span><br><span class="line"><span class="bash">EXPOSE 1234</span></span><br><span class="line"><span class="bash">ENTRYPOINT [<span class="string">"pd-server"</span>]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Tikv</p>
+  <figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> pingcap/tikv:latest</span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> addgroup -g 10006 tikv &amp;&amp; adduser -h /dev/null -D -s /sbin/nologin -H -G tikv -u 10006 tikv</span></span><br><span class="line"><span class="bash">USER tikv</span></span><br><span class="line"><span class="bash">ENTRYPOINT [<span class="string">"/tikv-server"</span>]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Tidb</p>
+<figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> alpine:latest</span><br><span class="line"><span class="keyword">MAINTAINER</span> wuhan@xindong.com</span><br><span class="line"><span class="keyword">ENV</span> GOROOT=/usr/lib/go GOPATH=/go</span><br><span class="line"><span class="keyword">ENV</span> PATH=$GOROOT/bin:$GOPATH/bin:$PATH</span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . /go/src/github.com/pingcap/tidb</span></span><br><span class="line"><span class="bash">RUN sed -i -e s<span class="string">'/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/'</span> /etc/apk/repositories &amp;&amp; \</span></span><br><span class="line"><span class="bash">    apk update &amp;&amp; \</span></span><br><span class="line"><span class="bash">    apk add go make git &amp;&amp; \</span></span><br><span class="line"><span class="bash">    rm -rf /var/cache/apk/* &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /go/bin &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /go/src/github.com/pingcap/tidb &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mv bin/tidb-server /tidb-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make clean &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> / &amp;&amp; \</span></span><br><span class="line"><span class="bash">    rm -rf /go/src &amp;&amp; \</span></span><br><span class="line"><span class="bash">    apk del go make git &amp;&amp; \</span></span><br><span class="line"><span class="bash">    addgroup -g 10007 tidb &amp;&amp; adduser -h /dev/null -D -s /sbin/nologin -H -G tidb -u 10007 tidb</span></span><br><span class="line"><span class="bash">USER tidb</span></span><br><span class="line"><span class="bash">EXPOSE 4000</span></span><br><span class="line"><span class="bash">ENTRYPOINT [<span class="string">"/tidb-server"</span>]</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="查看集群状态，找到leader"><a href="#查看集群状态，找到leader" class="headerlink" title="查看集群状态，找到leader"></a>查看集群状态，找到leader</h4><ul>
+<li><p>pd节点状态</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:2379/pd/api/v1/members</span><br><span class="line">&#123;</span><br><span class="line">  &quot;members&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;name&quot;: &quot;pd2&quot;,</span><br><span class="line">      &quot;client_urls&quot;: [</span><br><span class="line">        &quot;http://192.168.1.101:2379&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;peer_urls&quot;: [</span><br><span class="line">        &quot;http://192.168.1.101:2380&quot;</span><br><span class="line">      ]</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;name&quot;: &quot;pd1&quot;,</span><br><span class="line">      &quot;client_urls&quot;: [</span><br><span class="line">        &quot;http://192.168.1.100:2379&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;peer_urls&quot;: [</span><br><span class="line">        &quot;http://192.168.1.100:2380&quot;</span><br><span class="line">      ]</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;name&quot;: &quot;pd3&quot;,</span><br><span class="line">      &quot;client_urls&quot;: [</span><br><span class="line">        &quot;http://192.168.1.102:2379&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;peer_urls&quot;: [</span><br><span class="line">        &quot;http://192.168.1.102:2380&quot;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>pd集群leader</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://localhost:2379/pd/api/v1/leader</span><br><span class="line">&#123;</span><br><span class="line">  &quot;addr&quot;: &quot;http://198.168.1.101:2379&quot;,</span><br><span class="line">  &quot;pid&quot;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关掉容器并重新启动新的容器，为了防止leader切换，leader最后关</p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/tidb/" rel="tag"># tidb</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/15/redis/" rel="next" title="Redis数据类型">
+                <i class="fa fa-chevron-left"></i> Redis数据类型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/15/cacti/" rel="prev" title="Cacti安装、配置相关">
+                Cacti安装、配置相关 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="drachen714" />
+            
+              <p class="site-author-name" itemprop="name">drachen714</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#TiDB-总览"><span class="nav-number">1.</span> <span class="nav-text">TiDB 总览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TiDB-架构"><span class="nav-number">2.</span> <span class="nav-text">TiDB 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#水平扩展"><span class="nav-number">2.1.</span> <span class="nav-text">水平扩展</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高可用"><span class="nav-number">2.2.</span> <span class="nav-text">高可用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TiDB-Docker-部署准备"><span class="nav-number">3.</span> <span class="nav-text">TiDB Docker 部署准备</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#环境准备"><span class="nav-number">3.1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#获取镜像"><span class="nav-number">3.2.</span> <span class="nav-text">获取镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多节点信息"><span class="nav-number">3.3.</span> <span class="nav-text">多节点信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TiDB-Docker-部署"><span class="nav-number">4.</span> <span class="nav-text">TiDB Docker 部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#每台机器上启动-PD"><span class="nav-number">4.1.</span> <span class="nav-text">每台机器上启动 PD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#每台机器上启动-TiKV"><span class="nav-number">4.2.</span> <span class="nav-text">每台机器上启动 TiKV</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在每台机器上启动-TiDB"><span class="nav-number">4.3.</span> <span class="nav-text">在每台机器上启动 TiDB</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更新"><span class="nav-number">5.</span> <span class="nav-text">更新</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#更新代码、镜像"><span class="nav-number">5.1.</span> <span class="nav-text">更新代码、镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Dockerfile"><span class="nav-number">5.2.</span> <span class="nav-text">Dockerfile</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查看集群状态，找到leader"><span class="nav-number">5.3.</span> <span class="nav-text">查看集群状态，找到leader</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">drachen714</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

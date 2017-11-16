@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Ansible简介什么是Ansible Ansible是一款部署应用/管理系统的IT自动化工具。 Ansible基于OpenSSH传输内容，安全性有一定保障。 Ansible使用YAML语法构建自动化部署的配置内容。  为什么选择Ansible构建自动化部署 易于上手，学习成本相对较低 结构简单，无需配置代理(agent-less) 去中心化，远端机器的控制访问基于OpenSSH验证 模块化设计，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ansible">
+<meta property="og:url" content="http://drachen714.github.io/2017/11/16/ansible/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Ansible简介什么是Ansible Ansible是一款部署应用/管理系统的IT自动化工具。 Ansible基于OpenSSH传输内容，安全性有一定保障。 Ansible使用YAML语法构建自动化部署的配置内容。  为什么选择Ansible构建自动化部署 易于上手，学习成本相对较低 结构简单，无需配置代理(agent-less) 去中心化，远端机器的控制访问基于OpenSSH验证 模块化设计，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-16T08:57:21.087Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ansible">
+<meta name="twitter:description" content="Ansible简介什么是Ansible Ansible是一款部署应用/管理系统的IT自动化工具。 Ansible基于OpenSSH传输内容，安全性有一定保障。 Ansible使用YAML语法构建自动化部署的配置内容。  为什么选择Ansible构建自动化部署 易于上手，学习成本相对较低 结构简单，无需配置代理(agent-less) 去中心化，远端机器的控制访问基于OpenSSH验证 模块化设计，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://drachen714.github.io/2017/11/16/ansible/"/>
+
+
+
+
+
+  <title>ansible | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-schedule">
+          <a href="/schedule/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br />
+            
+            日程表
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://drachen714.github.io/2017/11/16/ansible/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="drachen714">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ansible</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-16T08:17:23+08:00">
+                2017-11-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Ansible简介"><a href="#Ansible简介" class="headerlink" title="Ansible简介"></a>Ansible简介</h2><h3 id="什么是Ansible"><a href="#什么是Ansible" class="headerlink" title="什么是Ansible"></a>什么是Ansible</h3><ul>
+<li>Ansible是一款部署应用/管理系统的IT自动化工具。</li>
+<li>Ansible基于OpenSSH传输内容，安全性有一定保障。</li>
+<li>Ansible使用YAML语法构建自动化部署的配置内容。</li>
+</ul>
+<h3 id="为什么选择Ansible构建自动化部署"><a href="#为什么选择Ansible构建自动化部署" class="headerlink" title="为什么选择Ansible构建自动化部署"></a>为什么选择Ansible构建自动化部署</h3><ul>
+<li>易于上手，学习成本相对较低</li>
+<li>结构简单，无需配置代理(agent-less)</li>
+<li>去中心化，远端机器的控制访问基于OpenSSH验证</li>
+<li>模块化设计，可以使用<a href="https://www.python.org" target="_blank" rel="external">Python</a>开发扩展模块，自研门槛较低</li>
+</ul>
+<h2 id="Ansible-Playbooks"><a href="#Ansible-Playbooks" class="headerlink" title="Ansible Playbooks"></a>Ansible Playbooks</h2><p>Playbooks是Ansible的配置/部署/任务编排使用的语言。  </p>
+<ul>
+<li>Ansible modules是负责具体任务的工具，playbooks负责设计和安排如何使用这些工具</li>
+<li>Ansible playbooks的内容基于YAML语法</li>
+<li>Ansible playbooks的官方配置用例请参考：<a href="https://github.com/ansible/ansible-examples" target="_blank" rel="external">https://github.com/ansible/ansible-examples</a></li>
+<li>Ansible官方文档请参考：<a href="http://docs.ansible.com/ansible/index.html" target="_blank" rel="external">http://docs.ansible.com/ansible/index.html</a></li>
+<li>Ansible Modules 索引：<a href="http://docs.ansible.com/ansible/latest/modules_by_category.html" target="_blank" rel="external">http://docs.ansible.com/ansible/latest/modules_by_category.html</a></li>
+</ul>
+<h3 id="Ansible-Playbooks配置用例说明"><a href="#Ansible-Playbooks配置用例说明" class="headerlink" title="Ansible Playbooks配置用例说明"></a>Ansible Playbooks配置用例说明</h3><ul>
+<li>为了更好地理解Ansible playbooks的结构，此处将选用官方配置中的lamp_simple来做些简单的说明</li>
+<li>官方用例地址：<a href="https://github.com/ansible/ansible-examples/tree/master/lamp_simple" target="_blank" rel="external">https://github.com/ansible/ansible-examples/tree/master/lamp_simple</a></li>
+</ul>
+<ol>
+<li><p>lamp_simple的目录层次如下，README.md包含一些简单的说明</p>
+<pre><code>lamp_simple
+├── LICENSE.md
+├── README.md
+├── group_vars
+│   ├── all
+│   └── dbservers
+├── hosts
+├── roles
+│   ├── common
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       └── ntp.conf.j2
+│   ├── db
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       └── my.cnf.j2
+│   └── web
+│       ├── handlers
+│       │   └── main.yml
+│       ├── tasks
+│       │   ├── copy_code.yml
+│       │   ├── install_httpd.yml
+│       │   └── main.yml
+│       └── templates
+│           └── index.php.j2
+└── site.yml
+</code></pre></li>
+<li><p>文件hosts是inventory file，定义了需要被playbooks配置的节点信息</p>
+ <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># []内定义了组名称，一般可以把相同用途的节点放在一个组里</span><br><span class="line">[webservers]</span><br><span class="line"># 节点名称，需要能被解析为IP地址；也可以直接填写IP地址</span><br><span class="line">web3</span><br><span class="line"></span><br><span class="line">[dbservers]</span><br><span class="line">web2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>目录roles定义了节点需要被配置的角色类型，例如web，db（可以根据服务类型自定义名称）等；每个角色可以包含一份或者多份playbooks，<br>此处定义了三种角色类型：common，db，web</p>
+<pre><code>roles/
+├── common
+│   ├── handlers
+│   │   └── main.yml
+│   ├── tasks
+│   │   └── main.yml
+│   └── templates
+│       └── ntp.conf.j2
+├── db
+│   ├── handlers
+│   │   └── main.yml
+│   ├── tasks
+│   │   └── main.yml
+│   └── templates
+│       └── my.cnf.j2
+└── web
+    ├── handlers
+    │   └── main.yml
+    ├── tasks
+    │   ├── copy_code.yml
+    │   ├── install_httpd.yml
+    │   └── main.yml
+    └── templates
+        └── index.php.j2
+</code></pre></li>
+<li><p>每种角色类型的目录下可以定义handlers/tasks/templates/files这4个子目录，yml的文件就是playbook</p>
+<ul>
+<li>tasks目录内的playbook用作多任务编排</li>
+<li>handlers目录内的playbook定义的任务一般只有在执行变更动作的时候才被触发（比如tasks目录的playbook内的任务变更了nginx配置，可以触发handlers的playbook内重启nginx服务任务的执行）</li>
+<li>templates目录内定义了配置模板，在远程主机上会根据配置模板生成配置文件</li>
+<li>files目录内定义了配置文件，内容会直接同步到远程主机的配置文件  </li>
+</ul>
+</li>
+<li><p>roles/common/handlers/main.yml定义了多个可被触发的任务；任务通过module来定义<br> 执行<code>ansible-doc -l</code>列出所有内置的module<br> 执行<code>ansible-doc [module]</code>获取module的选项和用法</p>
+ <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># Handler to handle common notifications. Handlers are called by other plays.</span></span><br><span class="line"><span class="comment"># See http://docs.ansible.com/playbooks_intro.html for more information about handlers.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义任务名称，执行playbook时会显示</span></span><br><span class="line"><span class="attr">- name:</span> <span class="string">restart</span> <span class="string">ntp</span></span><br><span class="line"><span class="comment"># 调用`service`module重启ntpd</span></span><br><span class="line"><span class="attr">  service:</span> <span class="string">name=ntpd</span> <span class="string">state=restarted</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">restart</span> <span class="string">iptables</span></span><br><span class="line"><span class="attr">  service:</span> <span class="string">name=iptables</span> <span class="string">state=restarted</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>roles/common/tasks/main.yml定义了多个相互依赖的任务（安装ntp包 -&gt; 配置ntp -&gt; 启动ntpd -&gt; 检查selinux是否运行），<br> 任务根据文件内容从上往下顺序执行；一个playbook内定义的多个任务实际就是配置一个服务执行的相关步骤</p>
+ <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># This playbook contains common plays that will be run on all nodes.</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">Install</span> <span class="string">ntp</span></span><br><span class="line"><span class="attr">  yum:</span> <span class="string">name=ntp</span> <span class="string">state=present</span></span><br><span class="line">  <span class="comment"># 可以对任务做标记（tags），运行playbook的时候可以加上-t参数执行指定tag的任务</span></span><br><span class="line"><span class="attr">  tags:</span> <span class="string">ntp</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">Configure</span> <span class="string">ntp</span> <span class="string">file</span></span><br><span class="line"><span class="attr">  template:</span> <span class="string">src=ntp.conf.j2</span> <span class="string">dest=/etc/ntp.conf</span></span><br><span class="line"><span class="attr">  tags:</span> <span class="string">ntp</span></span><br><span class="line">  <span class="comment"># notify就是触发handlers目录内playbook定义的`restart ntp`任务执行</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="string">restart</span> <span class="string">ntp</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">Start</span> <span class="string">the</span> <span class="string">ntp</span> <span class="string">service</span></span><br><span class="line"><span class="attr">  service:</span> <span class="string">name=ntpd</span> <span class="string">state=started</span> <span class="string">enabled=yes</span></span><br><span class="line"><span class="attr">  tags:</span> <span class="string">ntp</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">test</span> <span class="string">to</span> <span class="string">see</span> <span class="string">if</span> <span class="string">selinux</span> <span class="string">is</span> <span class="string">running</span></span><br><span class="line"><span class="attr">  command:</span> <span class="string">getenforce</span></span><br><span class="line">  <span class="comment"># registry把getenforce执行的结果保存到sestatus变量</span></span><br><span class="line"><span class="attr">  register:</span> <span class="string">sestatus</span></span><br><span class="line">  <span class="comment"># 此处定义只有当`setstatus`值是`false`时才会执行变更</span></span><br><span class="line"><span class="attr">  changed_when:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置模板基于<a href="http://jinja.pocoo.org/" target="_blank" rel="external">Jinja2</a>模板引擎解析，可以加上<code>.j2</code>后缀作为标识</p>
+<ul>
+<li>模板引擎查找group_vars里的变量文件</li>
+<li>group_vars里存放多份变量文件时，如果存在和节点所在组名称相同的文件，在此文件中查找变量替换值</li>
+<li><p>group_vars/all是默认的变量文件</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"># roles/web/templates/index.php.j2</span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Ansible Application<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">br</span>&gt;</span></span><br><span class="line">  # &#123;&#123; &#125;&#125;内定义了变量</span><br><span class="line">  # `ansible_default_ipv4.address`是远程主机的系统信息，可以通过`setup`modules获取所有系统信息</span><br><span class="line">  # 具体参考官方文档：http://docs.ansible.com/ansible/setup_module.html</span><br><span class="line">  <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">http://&#123;&#123;</span> <span class="attr">ansible_default_ipv4.address</span> &#125;&#125;/<span class="attr">index.html</span>&gt;</span>Homepage<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">br</span>&gt;</span></span><br><span class="line">&lt;?php</span><br><span class="line"> Print "Hello, World! I am a web server configured using Ansible and I am : ";</span><br><span class="line"> echo exec('hostname');</span><br><span class="line"> Print  "&lt;/BR&gt;";</span><br><span class="line">echo  "List of Databases: &lt;/BR&gt;";</span><br><span class="line">        # Jinja2支持&#123;% %&#125;内定义简单的条件和循环</span><br><span class="line">        # `groups`/`hostvars`是Ansible内置变量</span><br><span class="line">        # `groups['dbservers']`是inventory file里定义的[dbservers]</span><br><span class="line">        # `hostvars[host]`可以查询对应主机的变量值</span><br><span class="line">        &#123;% for host in groups['dbservers'] %&#125;</span><br><span class="line">                $link = mysqli_connect('&#123;&#123; hostvars[host].ansible_default_ipv4.address &#125;&#125;', '&#123;&#123; hostvars[host].dbuser &#125;&#125;', '&#123;&#123; hostvars[host].upassword &#125;&#125;') or die(mysqli_connect_error($link));</span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line">        $res = mysqli_query($link, "SHOW DATABASES;");</span><br><span class="line">        while ($row = mysqli_fetch_assoc($res)) &#123;</span><br><span class="line">                echo $row['Database'] . "\n";</span><br><span class="line">        &#125;</span><br><span class="line">?&gt;</span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>playbook支持<code>- include: another.yml</code>，可以写多份playbook，然后在main.yml中include其他playbook<br>   playbook支持在module里使用变量，执行时在group_vars里查找变量文件<br>   playbook支持循环，参考：<a href="http://docs.ansible.com/ansible/playbooks_loops.html" target="_blank" rel="external">http://docs.ansible.com/ansible/playbooks_loops.html</a><br>   playbook支持条件判断，参考：<a href="http://docs.ansible.com/ansible/playbooks_conditionals.html" target="_blank" rel="external">http://docs.ansible.com/ansible/playbooks_conditionals.html</a></p>
+</li>
+<li><p>文件site.yml是全局playbook，定义了节点组和角色类型的对应关系</p>
+ <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="comment"># This playbook deploys the whole application stack in this site.</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">apply</span> <span class="string">common</span> <span class="string">configuration</span> <span class="string">to</span> <span class="string">all</span> <span class="string">nodes</span></span><br><span class="line"><span class="attr">  hosts:</span> <span class="string">all</span></span><br><span class="line">  <span class="comment"># ssh远程执行用户</span></span><br><span class="line"><span class="attr">  remote_user:</span> <span class="string">root</span></span><br><span class="line">  <span class="comment"># 节点组对应的角色</span></span><br><span class="line"><span class="attr">  roles:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">common</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">configure</span> <span class="string">and</span> <span class="string">deploy</span> <span class="string">the</span> <span class="string">webservers</span> <span class="string">and</span> <span class="string">application</span> <span class="string">code</span></span><br><span class="line"><span class="attr">  hosts:</span> <span class="string">webservers</span></span><br><span class="line"><span class="attr">  remote_user:</span> <span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="attr">  roles:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">web</span></span><br><span class="line"></span><br><span class="line"><span class="attr">- name:</span> <span class="string">deploy</span> <span class="string">MySQL</span> <span class="string">and</span> <span class="string">configure</span> <span class="string">the</span> <span class="string">databases</span></span><br><span class="line"><span class="attr">  hosts:</span> <span class="string">dbservers</span></span><br><span class="line"><span class="attr">  remote_user:</span> <span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="attr">  roles:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">db</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行playbook</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> lamp_simple</span><br><span class="line">$ ansible-playbook site.yml -i hosts</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/15/coreos/" rel="next" title="CoreOS介绍">
+                <i class="fa fa-chevron-left"></i> CoreOS介绍
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="drachen714" />
+            
+              <p class="site-author-name" itemprop="name">drachen714</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ansible简介"><span class="nav-number">1.</span> <span class="nav-text">Ansible简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是Ansible"><span class="nav-number">1.1.</span> <span class="nav-text">什么是Ansible</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么选择Ansible构建自动化部署"><span class="nav-number">1.2.</span> <span class="nav-text">为什么选择Ansible构建自动化部署</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ansible-Playbooks"><span class="nav-number">2.</span> <span class="nav-text">Ansible Playbooks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Ansible-Playbooks配置用例说明"><span class="nav-number">2.1.</span> <span class="nav-text">Ansible Playbooks配置用例说明</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">drachen714</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
