@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="centos," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="官方 官网(https://www.centreon.com/)   官方文档(https://documentation.centreon.com/)  介绍Centreon是一款功能强大的分布式IT监控系统，它通过第三方组件可以实现对网络、操作系统和应用程序的监控首先，它是开源的，我们可以免费使用它；其次，它的底层采用nagios作为监控软件，同时nagios通过ndoutil模块将监控到的数">
+<meta name="keywords" content="centos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centreon服务搭建">
+<meta property="og:url" content="http://drachen714.github.io/2017/11/15/centreon/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="官方 官网(https://www.centreon.com/)   官方文档(https://documentation.centreon.com/)  介绍Centreon是一款功能强大的分布式IT监控系统，它通过第三方组件可以实现对网络、操作系统和应用程序的监控首先，它是开源的，我们可以免费使用它；其次，它的底层采用nagios作为监控软件，同时nagios通过ndoutil模块将监控到的数">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/acentreonwelcome.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/acentreoncheckmodules.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/amonitoringengine2.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/abrokerinfo2.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/aadmininfo.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/adbinfo.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/adbconf.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/aendinstall.png">
+<meta property="og:image" content="http://drachen714.github.io/2017/11/15/centreon/aconnection.png">
+<meta property="og:updated_time" content="2017-11-16T03:39:56.226Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Centreon服务搭建">
+<meta name="twitter:description" content="官方 官网(https://www.centreon.com/)   官方文档(https://documentation.centreon.com/)  介绍Centreon是一款功能强大的分布式IT监控系统，它通过第三方组件可以实现对网络、操作系统和应用程序的监控首先，它是开源的，我们可以免费使用它；其次，它的底层采用nagios作为监控软件，同时nagios通过ndoutil模块将监控到的数">
+<meta name="twitter:image" content="http://drachen714.github.io/2017/11/15/centreon/acentreonwelcome.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://drachen714.github.io/2017/11/15/centreon/"/>
+
+
+
+
+
+  <title>Centreon服务搭建 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://drachen714.github.io/2017/11/15/centreon/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="drachen714">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Centreon服务搭建</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-15T06:57:18+08:00">
+                2017-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/监控/" itemprop="url" rel="index">
+                    <span itemprop="name">监控</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="官方"><a href="#官方" class="headerlink" title="官方"></a>官方</h3><ul>
+<li>官网(<a href="https://www.centreon.com/" target="_blank" rel="external">https://www.centreon.com/</a>)  </li>
+<li>官方文档(<a href="https://documentation.centreon.com/" target="_blank" rel="external">https://documentation.centreon.com/</a>)</li>
+</ul>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>Centreon是一款功能强大的分布式IT监控系统，它通过第三方组件可以实现对网络、操作系统和应用程序的监控<br>首先，它是开源的，我们可以免费使用它；其次，它的底层采用nagios作为监控软件，同时nagios通过ndoutil模块将监控到的数据定时写入数据库中，而Centreon实时从数据库读取该数据并通过Web界面展现监控数据；，最后，我们可以通过Centreon管理和配置nagios，或者说Centreon就是nagios的一个管理配置工具，通过Centreon提供的Web配置界面，可以轻松完成nagios的各种繁琐配置。</p>
+<p>此外，Centreon还支持NRPE、SNMP、NSClient等插件，可以通过这些插件构建分布式的监控报警系统。</p>
+<h3 id="依赖环境"><a href="#依赖环境" class="headerlink" title="依赖环境"></a>依赖环境</h3><ul>
+<li>数据库(MariaDB和MySQL任选其一)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Software</th>
+<th style="text-align:center">Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MariaDB</td>
+<td style="text-align:center">&gt;= 5.5.48</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td style="text-align:center">&gt;= 5.6.x</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>依赖软件</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Software</th>
+<th style="text-align:center">Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apache</td>
+<td style="text-align:center">2.2</td>
+</tr>
+<tr>
+<td>GnuTLS</td>
+<td style="text-align:center">&gt;= 2.0</td>
+</tr>
+<tr>
+<td>Net-SNMP</td>
+<td style="text-align:center">5.5</td>
+</tr>
+<tr>
+<td>openssl</td>
+<td style="text-align:center">&gt;= 1.0.1e</td>
+</tr>
+<tr>
+<td>PHP</td>
+<td style="text-align:center">&gt;= 5.3.0</td>
+</tr>
+<tr>
+<td>Qt</td>
+<td style="text-align:center">&gt;= 4.7.4</td>
+</tr>
+<tr>
+<td>RRDtools</td>
+<td style="text-align:center">1.4.7</td>
+</tr>
+<tr>
+<td>zlib</td>
+<td style="text-align:center">1.2.3</td>
+</tr>
+</tbody>
+</table>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><h4 id="获取官方yum源"><a href="#获取官方yum源" class="headerlink" title="获取官方yum源"></a>获取官方yum源</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ wget http://yum.centreon.com/standard/3.4/el7/stable/noarch/RPMS/centreon-release-3.4-4.el7.centos.noarch.rpm</span><br><span class="line">$ yum install --nogpgcheck centreon-release-3.4-4.el7.centos.noarch.rpm</span><br></pre></td></tr></table></figure>
+<h4 id="安装web端"><a href="#安装web端" class="headerlink" title="安装web端"></a>安装web端</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install centreon-base-config-centreon-engine centreon</span><br></pre></td></tr></table></figure>
+<h4 id="安装engine"><a href="#安装engine" class="headerlink" title="安装engine"></a>安装engine</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install centreon-engine</span><br></pre></td></tr></table></figure>
+<h4 id="web安装"><a href="#web安装" class="headerlink" title="web安装"></a>web安装</h4><ol>
+<li>开始安装，直接点<strong>Next</strong><br><img src="acentreonwelcome.png" alt="acentreonwelcome"></li>
+<li>检测模块是否安装,yum安装默认全部安装，点<strong>Next</strong><br><img src="acentreoncheckmodules.png" alt="acentreoncheckmodules"></li>
+<li>服务端模块安装位置，一般默认，点<strong>Next</strong><br><img src="amonitoringengine2.png" alt="amonitoringengine2"></li>
+<li>客户端模块安装位置，一般默认，点<strong>Next</strong><br><img src="abrokerinfo2.png" alt="abrokerinfo2"></li>
+<li>centreon管理员设置，用户admin，密码和其他信息自定，填好点<strong>Next</strong><br><img src="aadmininfo.png" alt="aadmininfo"></li>
+<li><p>数据库设置，设置MySQL信息，点<strong>Next</strong><br><img src="adbinfo.png" alt="adbinfo"><br>这里一般需要在MySQL配置里加入下列参数</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">innodb_file_per_table</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>数据库创建，完成后点<strong>Next</strong><br><img src="adbconf.png" alt="adbconf"></p>
+</li>
+<li>安装完成，点<strong>Finish</strong><br><img src="aendinstall.png" alt="aendinstall"></li>
+</ol>
+<ul>
+<li>输入管理员账号密码登录<br><img src="aconnection.png" alt="aconnection"></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/centos/" rel="tag"># centos</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/15/registry/" rel="next" title="Docker私有库搭建、使用、清理">
+                <i class="fa fa-chevron-left"></i> Docker私有库搭建、使用、清理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/15/redis/" rel="prev" title="Redis数据类型">
+                Redis数据类型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="drachen714" />
+            
+              <p class="site-author-name" itemprop="name">drachen714</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:drachen714@gmail.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-globe"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://leriou.github.io/" title="leriou" target="_blank">leriou</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#官方"><span class="nav-number">1.</span> <span class="nav-text">官方</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍"><span class="nav-number">2.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖环境"><span class="nav-number">3.</span> <span class="nav-text">依赖环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">4.</span> <span class="nav-text">安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#获取官方yum源"><span class="nav-number">4.1.</span> <span class="nav-text">获取官方yum源</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装web端"><span class="nav-number">4.2.</span> <span class="nav-text">安装web端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装engine"><span class="nav-number">4.3.</span> <span class="nav-text">安装engine</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#web安装"><span class="nav-number">4.4.</span> <span class="nav-text">web安装</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">drachen714</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

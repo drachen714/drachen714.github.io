@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="python,ansible," />
 
 
 
@@ -80,15 +80,16 @@
 
 
 <meta name="description" content="Ansible简介什么是Ansible Ansible是一款部署应用/管理系统的IT自动化工具。 Ansible基于OpenSSH传输内容，安全性有一定保障。 Ansible使用YAML语法构建自动化部署的配置内容。  为什么选择Ansible构建自动化部署 易于上手，学习成本相对较低 结构简单，无需配置代理(agent-less) 去中心化，远端机器的控制访问基于OpenSSH验证 模块化设计，">
+<meta name="keywords" content="python,ansible">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ansible">
+<meta property="og:title" content="ansible简介和playbook的简单使用">
 <meta property="og:url" content="http://drachen714.github.io/2017/11/16/ansible/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="Ansible简介什么是Ansible Ansible是一款部署应用/管理系统的IT自动化工具。 Ansible基于OpenSSH传输内容，安全性有一定保障。 Ansible使用YAML语法构建自动化部署的配置内容。  为什么选择Ansible构建自动化部署 易于上手，学习成本相对较低 结构简单，无需配置代理(agent-less) 去中心化，远端机器的控制访问基于OpenSSH验证 模块化设计，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-16T08:57:21.087Z">
+<meta property="og:updated_time" content="2017-11-20T06:54:48.745Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ansible">
+<meta name="twitter:title" content="ansible简介和playbook的简单使用">
 <meta name="twitter:description" content="Ansible简介什么是Ansible Ansible是一款部署应用/管理系统的IT自动化工具。 Ansible基于OpenSSH传输内容，安全性有一定保障。 Ansible使用YAML语法构建自动化部署的配置内容。  为什么选择Ansible构建自动化部署 易于上手，学习成本相对较低 结构简单，无需配置代理(agent-less) 去中心化，远端机器的控制访问基于OpenSSH验证 模块化设计，">
 
 
@@ -99,7 +100,7 @@
     root: '/',
     scheme: 'Mist',
     version: '5.1.3',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
@@ -125,7 +126,7 @@
 
 
 
-  <title>ansible | Hexo</title>
+  <title>ansible简介和playbook的简单使用 | Hexo</title>
   
 
 
@@ -229,26 +230,6 @@
           </a>
         </li>
       
-        
-        <li class="menu-item menu-item-schedule">
-          <a href="/schedule/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br />
-            
-            日程表
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-sitemap">
-          <a href="/sitemap.xml" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
-            
-            站点地图
-          </a>
-        </li>
-      
 
       
     </ul>
@@ -299,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">ansible</h1>
+          <h1 class="post-title" itemprop="name headline">ansible简介和playbook的简单使用</h1>
         
 
         <div class="post-meta">
@@ -311,7 +292,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-16T00:17:23+00:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-16T08:17:23+08:00">
                 2017-11-16
               </time>
             
@@ -321,6 +302,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/自动化/" itemprop="url" rel="index">
+                    <span itemprop="name">自动化</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -483,6 +486,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+            <a href="/tags/ansible/" rel="tag"># ansible</a>
+          
+        </div>
+      
 
       
       
@@ -492,7 +503,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/11/15/coreos/" rel="next" title="CoreOS介绍">
+              <a href="/2017/11/16/coreos/" rel="next" title="CoreOS介绍">
                 <i class="fa fa-chevron-left"></i> CoreOS介绍
               </a>
             
@@ -501,6 +512,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/17/switch/" rel="prev" title="Mac配置交换机">
+                Mac配置交换机 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -579,7 +594,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -590,7 +605,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -601,7 +616,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -613,12 +628,34 @@
 
           <div class="links-of-author motion-element">
             
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:drachen714@gmail.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            
           </div>
 
           
           
 
           
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-globe"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://leriou.github.io/" title="leriou" target="_blank">leriou</a>
+                  </li>
+                
+              </ul>
+            </div>
           
 
           
@@ -694,6 +731,8 @@
     
       <div class="back-to-top">
         <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
         
       </div>
     
