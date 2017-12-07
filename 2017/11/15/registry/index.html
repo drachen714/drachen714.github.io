@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="Registry简介 docker提供了中央registry，可以通过公用的registry上传和下载官方或者个人的images，使用的方法可以在docker官方文档中查询。在实际企业线上使用中，自建私有的仓库比较常见，也能带来较多的方便之处，因此本文着重介绍私有 registry的搭建和使用方法以及在使用过程中遇到的问题的简单排查处理 私有仓库节省网络带宽，针对于每个镜像不用每个内网客户端都去中">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-20T08:36:37.187Z">
+<meta property="og:updated_time" content="2017-12-07T03:22:38.241Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker私有库搭建、使用、清理">
 <meta name="twitter:description" content="Registry简介 docker提供了中央registry，可以通过公用的registry上传和下载官方或者个人的images，使用的方法可以在docker官方文档中查询。在实际企业线上使用中，自建私有的仓库比较常见，也能带来较多的方便之处，因此本文着重介绍私有 registry的搭建和使用方法以及在使用过程中遇到的问题的简单排查处理 私有仓库节省网络带宽，针对于每个镜像不用每个内网客户端都去中">
@@ -328,6 +328,18 @@
 
           
             
+            <!--noindex-->
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/11/15/registry/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count hc-comment-count" data-xid="2017/11/15/registry/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+              <!--/noindex-->
+            
           
 
           
@@ -493,6 +505,10 @@
 
 
           
+  
+    <div class="comments" id="comments">
+      <div id="hypercomments_widget"></div>
+    </div>
   
 
 
@@ -770,17 +786,31 @@
 
 	
 
+		<script type="text/javascript">
+		_hcwp = window._hcwp || [];
+
+		_hcwp.push({widget:"Bloggerstream", widget_id: 98716, selector:".hc-comment-count", label: "{\%COUNT%\}" });
+
+		
+		_hcwp.push({widget:"Stream", widget_id: 98716, xid: "2017/11/15/registry/"});
+		
+
+		(function() {
+		if("HC_LOAD_INIT" in window)return;
+		HC_LOAD_INIT = true;
+		var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+		var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+		hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/98716/"+lang+"/widget.js";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hcc, s.nextSibling);
+		})();
+		</script>
+
+	
 
 
 
 
-  
-
-
-
-
-
-  
 
 
 
